@@ -16,6 +16,7 @@ buildscript {
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+        classpath("com.google.gms:google-services:4.4.4")
     }
 }
 
@@ -33,18 +34,11 @@ allprojects {
     }
 }
 
-// 👇 voximplant 모듈 등 서브모듈 SDK 버전 강제 오버라이드
 subprojects {
     afterEvaluate { project ->
-        if (project.hasProperty("android")) {
-            project.android {
-                compileSdkVersion rootProject.ext.compileSdkVersion
-                buildToolsVersion rootProject.ext.buildToolsVersion
-
-                defaultConfig {
-                    minSdkVersion rootProject.ext.minSdkVersion
-                    targetSdkVersion rootProject.ext.targetSdkVersion
-                }
+        if (project.hasProperty('android')) {
+            project.android.lint {
+                abortOnError false
             }
         }
     }

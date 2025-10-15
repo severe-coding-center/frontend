@@ -10,6 +10,7 @@ import { RootStackParamList } from '../navigation/navigationType';
 import CookieManager from '@react-native-cookies/cookies';
 import Config from 'react-native-config';
 import axios from 'axios';
+import messaging from '@react-native-firebase/messaging'; // 👈 Firebase 메시징 import
 
 import 'react-native-url-polyfill/auto';
 
@@ -19,6 +20,28 @@ const KAKAO_AUTH_URL =
   `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code&state=guardian`;
 
 const BASE_URL = "http://3.37.99.32:8080";
+
+// 💡 [추가] FCM 토큰 등록 함수
+const registerFcmToken = async (accessToken: string) => {
+  try {
+    const fcmToken = await messaging().getToken();
+    console.log('[FCM] 보호자 기기 토큰:', fcmToken);
+
+    await axios.post(
+      `${BASE_URL}/api/users/fcm-token`,
+      { fcmToken: fcmToken },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    console.log('[FCM] 서버에 FCM 토큰 등록 성공');
+  } catch (error) {
+    console.error('[FCM] 서버에 FCM 토큰 등록 실패:', error);
+  }
+};
+
 
 export default function KakaoLoginWebView() {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -95,6 +118,9 @@ export default function KakaoLoginWebView() {
       handledRef.current = true;
       
       if (userType === 'guardian') {
+        // 💡 [핵심] FCM 토큰을 서버에 등록하는 함수 호출!
+        await registerFcmToken(accessToken);
+        
         const isLinked = await checkLinkStatusFromServer(accessToken);
         
         if (isLinked) {
