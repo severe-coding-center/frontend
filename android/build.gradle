@@ -1,0 +1,54 @@
+buildscript {
+    ext {
+        buildToolsVersion = "35.0.0"
+        minSdkVersion = 26
+        compileSdkVersion = 35
+        targetSdkVersion = 35
+        ndkVersion = "27.1.12297006"
+        kotlinVersion = "2.0.21"
+        playServicesVersion = "21.3.0"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        mavenCentral()
+    }
+    // 👇 충돌 해결을 위해 이 부분을 추가합니다.
+    configurations.all {
+        resolutionStrategy {
+            // 모든 위치 서비스 라이브러리 버전을 ext에 정의된 버전으로 강제 통일
+            force "com.google.android.gms:play-services-location:${rootProject.ext.playServicesVersion}"
+        }
+    }
+}
+
+// 👇 voximplant 모듈 등 서브모듈 SDK 버전 강제 오버라이드
+subprojects {
+    afterEvaluate { project ->
+        if (project.hasProperty("android")) {
+            project.android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+
+                defaultConfig {
+                    minSdkVersion rootProject.ext.minSdkVersion
+                    targetSdkVersion rootProject.ext.targetSdkVersion
+                }
+            }
+        }
+    }
+}
+
+
+apply plugin: "com.facebook.react.rootproject"
