@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: scale * 10,
     marginTop: scale * 10,
     marginBottom: scale * 10,
-    flex: 1, // 화면을 채우도록 flex: 1 추가
+    //flex: 1, // 화면을 채우도록 flex: 1 추가
   },
   title: {
     fontSize: scale * 18,
@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 5,
     justifyContent: 'space-between',
-    flex: 1, // 화면을 채우도록 flex: 1 추가
+    // flex: 1, // 화면을 채우도록 flex: 1 추가
   },
   header: {
     flexDirection: 'row',

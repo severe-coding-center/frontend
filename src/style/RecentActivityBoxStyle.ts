@@ -23,10 +23,43 @@ export default StyleSheet.create({
   title: {
     fontSize: 16,
     fontWeight: 'bold',
-    marginBottom: 10,
   },
   description: {
     fontSize: 14,
     color: '#444',
   },
+  // 👇 추가: 에러 발생 시 텍스트 스타일
+  errorText: {
+    fontSize: 14,
+    color: '#D32F2F', // 가독성 좋은 어두운 빨간색
+    fontWeight: '500',
+  },
+  logListContainer: {
+    marginTop: 8,
+  },
+  logEntry: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: '#f0e5c0', // 박스 배경색보다 약간 어두운 색
+  },
+  logTime: {
+    fontSize: 14,
+    color: '#555',
+  },
+  logEvent: {
+    fontSize: 14,
+    color: '#333',
+    fontWeight: '500',
+  },
+  headerContainer: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  marginBottom: 4, // 제목과 컨텐츠 목록 사이의 간격
+},
+reloadButton: {
+  padding: 4, // 아이콘 주변의 터치 영역을 확보
+},
 });

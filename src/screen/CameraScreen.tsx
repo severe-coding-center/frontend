@@ -122,7 +122,7 @@ export default function CameraScreen() {
         const loop = async () => {
             if (!device || hasPermission !== true || cancelled) return;
             await captureAndSend();
-            if (!cancelled) setTimeout(loop, 3000);
+            if (!cancelled) setTimeout(loop, 10000);
         };
         loop();
 
