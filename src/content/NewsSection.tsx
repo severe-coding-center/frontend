@@ -4,6 +4,8 @@ import Sound from 'react-native-sound';
 import RNFS from 'react-native-fs';
 import styles from '../style/NewsSectionStyle';
 import Config from 'react-native-config';
+import RNFetchBlob from 'react-native-blob-util';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 if (Platform.OS === 'android') {
   Sound.setCategory('Playback');
@@ -20,7 +22,7 @@ interface NewsSectionProps {
   isTouchable?: boolean; // 화면 전체 터치 여부를 결정하는 prop 추가
 }
 
-const AI_SERVER_URL = Config.AI_SERVER_URL;
+const BASE_URL = Config.BACKEND_URL;
 
 const NewsSection = ({ disasterInfo, isLoading, isTouchable = false }: NewsSectionProps) => {
   const [isTtsLoading, setIsTtsLoading] = useState(false);
@@ -33,38 +35,45 @@ const NewsSection = ({ disasterInfo, isLoading, isTouchable = false }: NewsSecti
     const path = `${RNFS.CachesDirectoryPath}/temp_audio.mp3`;
 
     try {
-      const formData = new FormData();
-      formData.append('text', disasterInfo.summary);
+      const accessToken = await AsyncStorage.getItem('accessToken');
+      // TtsController가 application/json을 받으므로 JSON으로 전송
+      const ttsResp = await RNFetchBlob.fetch('POST',
+        `${BASE_URL}/api/tts`, // 👈 백엔드 API 엔드포인트
+        {
+          'Content-Type': 'application/json', // 👈 JSON 타입 명시
+          ...(accessToken && { 'Authorization': `Bearer ${accessToken}` })
+        },
+        // TtsRequestDto 형식에 맞게 { "text": "..." } JSON 문자열 전송
+        JSON.stringify({ text: disasterInfo.summary })
+      );
 
-      const ttsResponse = await fetch(`${AI_SERVER_URL}/tts`, {
-        method: 'POST',
-        body: formData,
+      // 서버 오류 확인
+      if (ttsResp.info().status !== 200) {
+        throw new Error(`[TTS] 서버 오류: ${ttsResp.info().status}`);
+      }
+
+      // 4. 수정: FileReader 대신 .base64()로 바로 변환
+      const audioBase64 = ttsResp.base64();
+
+      // 5. 수정: .then() 콜백 대신 async/await 사용
+      await RNFS.writeFile(path, audioBase64, 'base64');
+
+      // (기존과 동일) 사운드 로드 및 재생
+      const sound = new Sound(path, '', (error) => {
+        setIsTtsLoading(false); // 로딩 완료 (성공 또는 실패)
+        if (error) {
+          console.log('음성 파일 로드 실패', error);
+          return;
+        }
+        
+        setIsPlaying(true);
+        sound.play(() => {
+          setIsPlaying(false);
+          sound.release();
+          RNFS.unlink(path).catch(err => console.log("임시 파일 삭제 실패", err));
+        });
       });
 
-      if (!ttsResponse.ok) throw new Error(`TTS Server error: ${ttsResponse.status}`);
-      
-      const audioBlob = await ttsResponse.blob();
-      const reader = new FileReader();
-      reader.readAsDataURL(audioBlob);
-      reader.onloadend = () => {
-        const base64data = (reader.result as string).split(',')[1];
-        RNFS.writeFile(path, base64data, 'base64').then(() => {
-          const sound = new Sound(path, '', (error) => {
-            setIsTtsLoading(false);
-            if (error) return console.log('음성 파일 로드 실패', error);
-            
-            setIsPlaying(true);
-            sound.play(() => {
-              setIsPlaying(false);
-              sound.release();
-              RNFS.unlink(path).catch(err => console.log("임시 파일 삭제 실패", err));
-            });
-          });
-        }).catch(err => {
-          console.log('파일 쓰기 오류', err);
-          setIsTtsLoading(false);
-        });
-      };
     } catch (error) {
       console.error('TTS 요청 오류:', error);
       setIsTtsLoading(false);

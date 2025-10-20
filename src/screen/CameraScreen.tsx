@@ -4,6 +4,10 @@ import { Camera, useCameraDevice } from "react-native-vision-camera";
 import RNFS from "react-native-fs";
 import Sound from "react-native-sound";
 import RNFetchBlob from 'react-native-blob-util';
+import Config from "react-native-config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
+const BASE_URL = Config.BACKEND_URL;
 
 export default function CameraScreen() {
     const cameraRef = useRef<Camera>(null);
@@ -12,9 +16,7 @@ export default function CameraScreen() {
 
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
     const [isProcessing, setIsProcessing] = useState(false);
-    // const [currentSound, setCurrentSound] = useState<Sound | null>(null); // ❌ 제거
     const [isActive, setIsActive] = useState(true);
-    const [recognizedText, setRecognizedText] = useState<string | null>(null);
     const [isCameraReady, setIsCameraReady] = useState(false);
 
      const cameraConfig = useMemo(() => {
@@ -50,44 +52,39 @@ export default function CameraScreen() {
         })();
     }, []);
 
-    const captureAndSend = useCallback(async () => {
+    const captureAndSend = useCallback(async (): Promise<void> => {
     if (!isCameraReady || isProcessing || cameraRef.current == null) return;
     setIsProcessing(true);
 
     try {
         const photo = await cameraRef.current.takePhoto({});
+        console.log('방금 찍은 사진 경로:', photo.path);
+        const accessToken = await AsyncStorage.getItem('accessToken');
 
         // ✨ 2. react-native-blob-util을 사용해 서버에 요청을 보냅니다.
         // 요청 방식은 FormData를 사용하는 이전 답변과 동일합니다.
-        const resp = await RNFetchBlob.fetch('POST', 
-            'http://myapp.210-178-40-54.nip.io/ocr-read', 
+        const ocrResp = await RNFetchBlob.fetch('POST', 
+            `${BASE_URL}/api/ocr/upload`, 
             {
                 'Content-Type' : 'multipart/form-data',
+                ...(accessToken && { 'Authorization': `Bearer ${accessToken}` })
             }, [
                 { name : 'image', filename : 'photo.jpg', type:'image/jpeg', data: RNFetchBlob.wrap(photo.path) }
             ]
         );
 
-        // ✨ 3. 응답 처리 방식이 완전히 바뀝니다.
-        // 응답 상태가 204이면 텍스트가 없는 것이므로 여기서 함수를 종료합니다.
-        if (resp.info().status === 204) {
+        // 1. (추가) 텍스트가 없을 때 (204 No Content) 처리
+        if (ocrResp.info().status === 204) {
             console.log("텍스트를 찾지 못했습니다.");
-            setIsProcessing(false); // isProcessing 상태를 꼭 false로 바꿔줘야 합니다.
-            return;
+            return; // 오디오 처리 없이 함수 종료
         }
 
         // 서버 오류 확인
-        if (resp.info().status !== 200) {
-            throw new Error(`서버 오류: ${resp.info().status}`);
+        if (ocrResp.info().status !== 200) {
+            throw new Error(`서버 오류: ${ocrResp.info().status}`);
         }
 
-        // ⚠️ 중요: 서버가 텍스트를 보내주지 않으므로, 텍스트를 화면에 표시하는 코드는 제거합니다.
-        // setRecognizedText(data.text);
-        // setTimeout(() => setRecognizedText(null), 3000);
-
-        // ✨ 4. base64 데이터를 직접 받아옵니다.
-        // .base64() 메서드로 MP3 파일 데이터를 바로 base64 문자열로 변환할 수 있습니다.
-        const audioBase64 = resp.base64();
+        const audioBase64 = ocrResp.base64();
 
         const outPath = `${RNFS.CachesDirectoryPath}/ocr_tts.mp3`;
         await RNFS.writeFile(outPath, audioBase64, "base64");
@@ -97,14 +94,27 @@ export default function CameraScreen() {
             soundRef.current.stop(() => soundRef.current?.release());
         }
 
-        const sound = new Sound(outPath, "", (error) => {
-            if (error) {
-                console.log('failed to load the sound', error);
-                return;
-            }
-            sound.play(() => sound.release());
-        });
-        soundRef.current = sound;
+        return new Promise((resolve, reject) => {
+                const sound = new Sound(outPath, "", (error) => {
+                    if (error) {
+                        console.log('failed to load the sound', error);
+                        reject(error); // 로딩 실패 시 Promise를 reject합니다.
+                        return;
+                    }
+                    
+                    // 재생이 끝나면 Promise를 resolve()하여 루프가 다음으로 진행되게 합니다.
+                    sound.play((success) => {
+                        if (success) {
+                            console.log('successfully finished playing');
+                        } else {
+                            console.log('playback failed due to audio decoding errors');
+                        }
+                        sound.release(); // 사운드 리소스 해제
+                        resolve(); // 재생 완료!
+                    });
+                });
+                soundRef.current = sound;
+            });
 
     } catch (err: any) {
         if (String(err).includes("Camera is closed")) {
@@ -122,7 +132,7 @@ export default function CameraScreen() {
         const loop = async () => {
             if (!device || hasPermission !== true || cancelled) return;
             await captureAndSend();
-            if (!cancelled) setTimeout(loop, 10000);
+            if (!cancelled) setTimeout(loop, 5000);
         };
         loop();
 
@@ -160,11 +170,6 @@ export default function CameraScreen() {
             {isProcessing && (
                 <View style={styles.overlay}>
                     <Text style={styles.processingText}>인식중...</Text>
-                </View>
-            )}
-            {recognizedText && (
-                <View style={styles.textOverlay}>
-                    <Text style={styles.textDisplay}>{recognizedText}</Text>
                 </View>
             )}
         </View>
