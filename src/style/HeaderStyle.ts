@@ -27,7 +27,7 @@ const styles = StyleSheet.create({
     marginLeft: scale * 15,
     fontSize: scale * 25,
     color: '#000',
-    fontFamily: 'NPS_font-Regular',
+    fontFamily: 'VITRO PRIDE OTF',
   },
   headerIcons: {
     position: 'absolute',

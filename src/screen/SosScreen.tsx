@@ -58,11 +58,12 @@ const styles = StyleSheet.create({
   text: {
     color: '#fff',
     fontSize: 32,
-    fontWeight: 'bold',
+    fontFamily: 'VITRO CORE OTF',
     marginBottom: 10,
   },
   subText: {
     color: '#fff',
     fontSize: 18,
+    fontFamily: 'VITRO PRIDE OTF',
   },
 });

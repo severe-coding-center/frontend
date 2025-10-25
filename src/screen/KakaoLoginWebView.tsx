@@ -1,5 +1,3 @@
-// KakaoLoginWebView.tsx
-
 import React, { useRef } from 'react';
 import { View } from 'react-native';
 import { WebView } from 'react-native-webview';
@@ -19,7 +17,7 @@ const REDIRECT_URI = Config.REDIRECT_URI;
 const KAKAO_AUTH_URL =
   `https://kauth.kakao.com/oauth/authorize?client_id=${REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code&state=guardian`;
 
-const BASE_URL = "http://3.37.99.32:8080";
+const BASE_URL = Config.BACKEND_URL;
 
 // 💡 [추가] FCM 토큰 등록 함수
 const registerFcmToken = async (accessToken: string) => {

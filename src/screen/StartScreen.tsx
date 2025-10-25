@@ -57,13 +57,13 @@ const styles = StyleSheet.create({
   subTitle: {
     fontSize: 35,
     color: '#000',
-    fontFamily: 'VITRO PRIDE TTF',
+    fontFamily: 'VITRO PRIDE OTF',
     textAlign: 'center',
   },
   title: {
     fontSize: 65,
     color: '#2563eb',
-    fontFamily: 'VITRO CORE TTF',
+    fontFamily: 'VITRO CORE OTF',
     textAlign: 'center',
   },
   logo: {

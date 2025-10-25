@@ -19,10 +19,13 @@ import { RootStackParamList } from '../navigation/navigationType';
 import CookieManager from '@react-native-cookies/cookies';
 import BottomNavigation from '../content/BottomNavigation';
 import axios from 'axios';
+import Config from 'react-native-config';
 
 import { stopBackgroundLocation } from '../services/BackgroundLocationService';
 
 const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
+const BASE_URL = Config.BACKEND_URL;
 
 type MyScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Main'>;
 
@@ -123,7 +126,7 @@ export default function MyScreen({ embedded = false }: { embedded?: boolean }) {
     }
 
     // 서버에 정상적으로 삭제 요청
-    await axios.delete(`http://3.37.99.32:8080/api/relationship/${relationshipId}`, {
+    await axios.delete(`${BASE_URL}/api/relationship/${relationshipId}`, {
       headers: { 'Authorization': `Bearer ${token}` }
     });
 

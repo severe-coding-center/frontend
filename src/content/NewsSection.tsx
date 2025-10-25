@@ -88,6 +88,56 @@ const NewsSection = ({ disasterInfo, isLoading, isTouchable = false }: NewsSecti
     }
   };
 
+  const getFullScreenStyle = (urgency: '주의' | '경보' | '안전') => {
+    switch (urgency) {
+      case '경보': return styles.fullScreen_warningBg;
+      case '주의': return styles.fullScreen_cautionBg;
+      default: return styles.fullScreen_safeBg;
+    }
+  };
+
+  if(isTouchable){
+    if(isLoading){
+      return(
+        <View style={styles.fullScreen_loadingContainer}>
+          <ActivityIndicator size="large" color="#007AFF" />
+        </View>
+      );
+    }
+
+    if(!disasterInfo || disasterInfo.urgency === '안전'){
+      return(
+        <View style={[styles.fullScreen_container, styles.fullScreen_safeBg]}>
+          <Text style={styles.fullScreen_urgencyText}>안전</Text>
+          <Text style={styles.fullScreen_summaryText}>
+            {disasterInfo?.summary || '현재 발령된 재난 정보가 없습니다.'}
+          </Text>
+        </View>
+      )
+  }
+  // 3. (User) '주의' 또는 '경보' 상태 (터치 가능)
+  return (
+ <TouchableOpacity
+   style={[styles.fullScreen_container, getFullScreenStyle(disasterInfo.urgency)]}
+    onPress={handlePressTTS}
+    disabled={isTtsLoading || isPlaying}
+    activeOpacity={0.9}
+   >
+    {isTtsLoading ? (
+     <ActivityIndicator size="large" color="#FFFFFF" />
+    ) : (
+     <>
+      <Text style={styles.fullScreen_urgencyText}>
+       {disasterInfo.urgency}
+      {isPlaying ? ' (재생 중...)' : ''}
+      </Text>
+   <Text style={styles.fullScreen_summaryText}>{disasterInfo.summary}</Text>
+     </>
+    )}
+   </TouchableOpacity>
+  );
+}
+
   return (
     <View style={styles.section}>
       <Text style={styles.title}>AI 안전 정보</Text>
@@ -101,7 +151,7 @@ const NewsSection = ({ disasterInfo, isLoading, isTouchable = false }: NewsSecti
           <ActivityIndicator size="large" color="#007AFF" />
         ) : (
           disasterInfo && (
-          <>
+          <View>
             <View>
               <View style={styles.header}>
                 <View style={[styles.urgencyBadge, getUrgencyStyle(disasterInfo.urgency)]}>
@@ -128,7 +178,7 @@ const NewsSection = ({ disasterInfo, isLoading, isTouchable = false }: NewsSecti
                 )}
               </TouchableOpacity>
             )}
-          </>
+          </View>
           )
         )}
       </TouchableOpacity>

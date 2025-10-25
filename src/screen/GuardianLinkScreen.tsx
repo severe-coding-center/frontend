@@ -7,9 +7,10 @@ import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/navigationType';
 import Tts from 'react-native-tts';
 import styles from '../style/GuardianLinkStyles';
+import Config from 'react-native-config';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'GuardianLink'>;
-const BASE_URL = 'http://3.37.99.32:8080';
+const BASE_URL = Config.BACKEND_URL;
 
 export default function GuardianLinkScreen() {
   const navigation = useNavigation<NavProp>();

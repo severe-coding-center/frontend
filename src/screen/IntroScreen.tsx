@@ -23,7 +23,7 @@ export default function IntroScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#1E6BFF',
+    backgroundColor: '#FFF',
     justifyContent: 'center',
     alignItems: 'center',
   },
@@ -35,12 +35,13 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 36,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontFamily: 'VITRO CORE OTF',
+    color: '#1E6BFF',
     marginBottom: 10,
   },
   subtitle: {
     fontSize: 18,
-    color: '#e6e6e6',
+    color: '#1E6BFF',
+    fontFamily: 'VITRO PRIDE OTF',
   },
 });

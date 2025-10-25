@@ -1,0 +1,17 @@
+{
+  "migIndex": 1,
+  "data": [
+    {
+      "path": "assets/fonts/VITRO CORE OTF.otf",
+      "sha1": "c7007328655e57e722e921677fc9839254973286"
+    },
+    {
+      "path": "assets/fonts/VITRO INSPIRE OTF.otf",
+      "sha1": "83e48f4e00970d7082ff5d8f47c1b2610366a32d"
+    },
+    {
+      "path": "assets/fonts/VITRO PRIDE OTF.otf",
+      "sha1": "f5468efaf2b7999b1c509a1895c242df1e8d0cc6"
+    }
+  ]
+}

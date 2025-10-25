@@ -10,6 +10,7 @@ import Config from 'react-native-config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 const GOOGLE_MAPS_API_KEY = Config.GOOGLE_MAPS_API_KEY;
+const BASE_URL = Config.BACKEND_URL;
 
 interface Location {
   latitude: number;
@@ -46,7 +47,7 @@ const fetchInitialDataAndStartPolling = async () => {
 
     // --- ✨ A. 이미 설정된 지오펜스 정보 가져오기 (이 부분이 새로 추가됨) ---
     try {
-      const geofenceUrl = `http://3.37.99.32:8080/api/geofence/${linkedUserId.trim()}`;
+      const geofenceUrl = `${BASE_URL}/api/geofence/${linkedUserId.trim()}`;
       const geofenceRes = await axios.get<GeofenceSettings>(geofenceUrl, { headers });
 
       if (geofenceRes.data) {
@@ -67,7 +68,7 @@ const fetchInitialDataAndStartPolling = async () => {
     // --- B. 피보호자의 실시간 위치 가져오기 (기존 로직과 유사) ---
     const fetchProtegeeLocation = async () => {
       try {
-        const locationUrl = `http://3.37.99.32:8080/api/location/${linkedUserId.trim()}`;
+        const locationUrl = `${BASE_URL}/api/location/${linkedUserId.trim()}`;
         const locationRes = await axios.get<Location>(locationUrl, { headers });
         if (locationRes.data) {
           setProtegeeLocation(locationRes.data);
@@ -135,7 +136,7 @@ return () => {
         radius: radius,
       };
 
-      await axios.post(`http://3.37.99.32:8080/api/geofence/${linkedUserId}`, geofenceData, {
+      await axios.post(`${BASE_URL}/api/geofence/${linkedUserId}`, geofenceData, {
         headers: { Authorization: `Bearer ${token}` },
       });
 

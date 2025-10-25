@@ -19,6 +19,6 @@ export default StyleSheet.create({
   textLarge: {
     fontSize: 28,
     color: '#fff',
-    fontWeight: 'bold',
+    fontFamily: 'VITRO CORE OTF',
   },
 });

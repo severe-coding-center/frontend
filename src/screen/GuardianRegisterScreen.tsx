@@ -5,10 +5,11 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/navigationType';
+import Config from 'react-native-config';
 
 type NavProp = NativeStackNavigationProp<RootStackParamList, 'GuardianRegister'>;
 
-const BASE_URL = "http://3.37.99.32:8080";
+const BASE_URL = Config.BACKEND_URL;
 
 export default function GuardianRegisterScreen() {
   const navigation = useNavigation<NavProp>();

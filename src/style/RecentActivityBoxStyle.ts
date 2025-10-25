@@ -22,7 +22,7 @@ export default StyleSheet.create({
   },
   title: {
     fontSize: 16,
-    fontWeight: 'bold',
+    fontFamily: 'VITRO CORE OTF',
   },
   description: {
     fontSize: 14,
@@ -36,6 +36,7 @@ export default StyleSheet.create({
   },
   logListContainer: {
     marginTop: 8,
+    flex: 1,
   },
   logEntry: {
     flexDirection: 'row',

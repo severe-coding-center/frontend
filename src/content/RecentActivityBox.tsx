@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { View, Text, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import axios from 'axios';
 import styles from '../style/RecentActivityBoxStyle';
@@ -33,6 +33,14 @@ const formatDateTime = (isoString: string) => {
   return `${month}월 ${day}일 ${hours}:${minutes}`;
 };
 
+// 오늘 날짜인지 확인하는 헬퍼 함수
+const isToday = (isoString: string) => {
+  const date = new Date(isoString);
+  const today = new Date();
+  // 날짜, 월, 년이 모두 같으면 true 반환
+  return date.toDateString() === today.toDateString();
+};
+
 const RecentActivityBox = () => {
   // 상태 관리
   const [logs, setLogs] = useState<AlertLog[]>([]);
@@ -60,10 +68,11 @@ const RecentActivityBox = () => {
           }
         );
         
-        const logs = response.data;
+        const allLogs = response.data;
 
-        const recentLogs = logs.slice(0, 8);
-        setLogs(recentLogs);
+        const todayLogs = allLogs.filter(log => isToday(log.eventTime));
+        todayLogs.sort((a, b) => new Date(b.eventTime).getTime() - new Date(a.eventTime).getTime());
+        setLogs(todayLogs);
 
       } catch (err) {
         console.error('활동 내역 로딩 실패:', err);
@@ -86,10 +95,10 @@ const RecentActivityBox = () => {
  return <Text style={styles.errorText}>{error}</Text>;
  }
  if (logs.length === 0) {
- return <Text style={styles.description}>최근 활동 내역이 없습니다.</Text>;
+ return <Text style={styles.description}>오늘 활동 내역이 없습니다.</Text>;
  }
   return (
- <View style={styles.logListContainer}>
+ <ScrollView style={styles.logListContainer}>
  {logs.map((log, index) => (
  <View key={`${log.eventTime}-${index}`} style={styles.logEntry}>
  <Text style={styles.logTime}>{formatDateTime(log.eventTime)}</Text>
@@ -98,11 +107,11 @@ const RecentActivityBox = () => {
  </Text>
  </View>
  ))}
- </View>
+ </ScrollView>
  );
  };
 
-  // ✅ 3단계: 최종 UI 구조를 수정하여 헤더와 컨텐츠 영역을 분리합니다.
+  //  3단계: 최종 UI 구조를 수정하여 헤더와 컨텐츠 영역을 분리합니다.
  return (
  <View style={styles.container}>
       {/* 제목과 새로고침 버튼을 담는 헤더 컨테이너 */}

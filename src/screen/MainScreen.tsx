@@ -6,7 +6,7 @@ import Swiper from 'react-native-swiper';
 import Tts from 'react-native-tts';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { MessageCircle } from 'lucide-react-native';
+import { Camera } from 'lucide-react-native';
 import Config from 'react-native-config';
 
 import Header from '../content/Header';
@@ -53,7 +53,7 @@ const UserMain = ({ disasterInfo, isLoadingNews, handleIndexChange, handleCenter
         <View style={styles.slide}><MyScreen embedded /></View>
       </Swiper>
       <TouchableOpacity style={[navStyles.centerButton, { position: 'absolute', alignSelf: 'center', bottom: 25 }]} onPress={handleCenterButtonPress} activeOpacity={0.8}>
-        <MessageCircle color="#fff" size={navStyles.iconSize.width} />
+        <Camera color="#fff" size={navStyles.iconSize.width} />
       </TouchableOpacity>
     </SafeAreaView>
   );
@@ -104,7 +104,7 @@ export default function MainScreen() {
         return;
       }
       
-      // --- ✨ 생략되었던 실제 API 호출 로직 전체 ---
+      // --- 생략되었던 실제 API 호출 로직 전체 ---
       if (!SAFETY_DATA_API_KEY) {
         console.error("SAFETY_DATA_API_KEY가 .env 파일에 설정되지 않았습니다.");
         if (isMounted) {
